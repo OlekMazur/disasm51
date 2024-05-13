@@ -16,7 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys, enum, utils
+import sys, enum
+import utils
 from instructions import ArgType, Instructions
 from addresses import Addresses
 

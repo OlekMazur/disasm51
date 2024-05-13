@@ -17,6 +17,7 @@
 # limitations under the License.
 
 import sys, re
+import utils
 
 class Addresses:
 	pat = re.compile(';?(?P<label>[a-zA-Z0-9_]+)\s+(?P<scope>[A-Z]+)\s+(?P<addr>[0-9A-F]+)(?P<hex>h|H)?')
