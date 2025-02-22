@@ -53,6 +53,8 @@ class InstrArgsAnalyzer:
 			if val >= 0x80:
 				val = val - 0x100
 			val = self.pc_rel + val
+			if val < 0:
+				return None
 			arg = ArgType.LABEL
 		elif arg == ArgType.IMM:
 			hint = utils.binary_hint(val)
