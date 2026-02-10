@@ -20,7 +20,7 @@ import sys, re
 import utils
 
 class Addresses:
-	pat = re.compile(';?(?P<label>[a-zA-Z0-9_]+)\s+(?P<scope>[A-Z]+)\s+(?P<addr>[0-9A-F]+)(?P<hex>h|H)?')
+	pat = re.compile(r';?(?P<label>[a-zA-Z0-9_]+)\s+(?P<scope>[A-Z]+)\s+(?P<addr>[0-9A-F]+)(?P<hex>h|H)?')
 
 	def __init__(self):
 		self.addr = {}

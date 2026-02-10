@@ -139,6 +139,6 @@ for i in range(0, len(starts)):
 		end = analyzer.dump_binary_block(end, start, False)
 
 	if length:
-		end = analyzer.disassemble_code_block(start, start + length, start < end)
+		end = analyzer.disassemble_code_block(start, start + length, start != end)
 
 print('\nend')

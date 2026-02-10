@@ -139,14 +139,18 @@ class CodeAnalyzer:
 			return None
 
 	def maybe_print_org_label(self, pc, force_org, just_started):
+		org = False
 		if pc in self.addresses['CODE']:
 			print('\norg\t%s' % self.addresses['CODE'][pc])
+			org = True
 		elif force_org:
 			print('\norg\t%s' % utils.int2hex(pc))
+			org = True
 		elif just_started and not pc in self.addresses['LABEL']:
 			print(';org\t%s' % utils.int2hex(pc))
 		if pc in self.addresses['LABEL']:
 			print('%s:' % self.addresses['LABEL'][pc])
+		return org
 
 	def dump_binary_block(self, start, end, force_org):
 		pc = start
@@ -158,7 +162,8 @@ class CodeAnalyzer:
 			return start	# don't dump blocks of 0FFh's
 		pc = start
 		while pc < end:
-			self.maybe_print_org_label(pc, force_org, pc == start)
+			if self.maybe_print_org_label(pc, force_org, pc == start):
+				force_org = False
 			if pc + 1 < end and pc in self.labels and self.labels[pc] == LabelType.ADDR:
 				result = utils.binary_word((self.rom[pc] << 8) | self.rom[pc + 1], pc)
 				pc += 2
@@ -171,7 +176,8 @@ class CodeAnalyzer:
 	def disassemble_code_block(self, start, end, force_org):
 		pc = start
 		while pc < end:
-			self.maybe_print_org_label(pc, force_org, pc == start)
+			if self.maybe_print_org_label(pc, force_org, pc == start):
+				force_org = False
 			result = self.__disassemble_instruction(pc)
 			if result:
 				(result, length) = result
