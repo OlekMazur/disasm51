@@ -17,25 +17,29 @@
 # limitations under the License.
 
 def int2hex(x):
-	s = '%02Xh' % x
-	if not s[0].isdigit():
-		s = '0' + s
-	return s
+    s = '%02Xh' % x
+    if not s[0].isdigit():
+        s = '0' + s
+    return s
+
 
 def binary_hint(byte):
-	s = '%3d' % byte
-	if byte >= 0x80:
-		s = s + (' %4d' % (byte - 0x100))
-	c = chr(byte)
-	if c.isprintable():
-		s = s + (" '%s'" % c)
-	return s
+    s = '%3d' % byte
+    if byte >= 0x80:
+        s = s + (' %4d' % (byte - 0x100))
+    c = chr(byte)
+    if c.isprintable():
+        s = s + (" '%s'" % c)
+    return s
+
 
 def binary_byte(byte, pc):
-	return '\tdb %s\t; [%04Xh] %s' % (int2hex(byte), pc, binary_hint(byte))
+    return '\tdb %s\t; [%04Xh] %s' % (int2hex(byte), pc, binary_hint(byte))
+
 
 def binary_word(word, pc):
-	return '\tdw %s\t; [%04Xh]' % (int2hex(word), pc)
+    return '\tdw %s\t; [%04Xh]' % (int2hex(word), pc)
+
 
 def auto_label(prefix, address):
-	return '%s_%04X' % (prefix, address)
+    return '%s_%04X' % (prefix, address)
