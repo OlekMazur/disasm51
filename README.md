@@ -1,3 +1,5 @@
+[![Build](https://github.com/OlekMazur/disasm51/actions/workflows/python-app.yml/badge.svg)](https://github.com/OlekMazur/disasm51/actions/workflows/python-app.yml)
+
 Disassembler for 8051/8052
 ==========================
 

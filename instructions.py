@@ -30,7 +30,8 @@ class ArgType(enum.Enum):
 
 
 class Instruction:
-    def __init__(self, code: int, length: int, mnemonic: str, args: list[ArgType] = None, jump_out: bool = False, no_jump: bool = False):
+    def __init__(self, code: int, length: int, mnemonic: str, args: list[ArgType] = None,
+                 jump_out: bool = False, no_jump: bool = False):
         self.code = code
         self.length = length
         self.mnemonic = mnemonic

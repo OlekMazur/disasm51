@@ -18,8 +18,6 @@
 
 import sys
 import argparse
-import re
-import enum
 import addresses
 import instructions
 import codeanalyzer

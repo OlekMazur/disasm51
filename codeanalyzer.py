@@ -68,7 +68,8 @@ class InstrArgsAnalyzer:
 
 
 class CodeAnalyzer:
-    def __init__(self, instructions: Instructions, rom: bytes, addresses: Addresses, offset: int, all_is_code: bool, no_return_from: list[int], indirect: list[int]):
+    def __init__(self, instructions: Instructions, rom: bytes, addresses: Addresses, offset: int,
+                 all_is_code: bool, no_return_from: list[int], indirect: list[int]):
         self.instructions = instructions
         self.rom = rom
         self.addresses = addresses
@@ -120,7 +121,8 @@ class CodeAnalyzer:
                     else:
                         suffix = ''
 
-                    if arg == ArgType.DATA and val >= 0x80 and val not in self.SFR_warnings and val not in self.addresses[arg.value]:
+                    if arg == ArgType.DATA and val >= 0x80 and val not in self.SFR_warnings \
+                       and val not in self.addresses[arg.value]:
                         print('warning: unknown SFR %s' %
                               utils.int2hex(val), file=sys.stderr)
                         self.SFR_warnings.add(val)
@@ -156,7 +158,7 @@ class CodeAnalyzer:
         elif force_org:
             print('\norg\t%s' % utils.int2hex(pc))
             org = True
-        elif just_started and not pc in self.addresses['LABEL']:
+        elif just_started and pc not in self.addresses['LABEL']:
             print(';org\t%s' % utils.int2hex(pc))
         if pc in self.addresses['LABEL']:
             print('%s:' % self.addresses['LABEL'][pc])
@@ -226,7 +228,7 @@ class CodeAnalyzer:
                                     self.forwards[pc] = val
                                 if val in self.no_return_from:
                                     jump_out = True
-                            if not val in self.labels:
+                            if val not in self.labels:
                                 self.labels[val] = ltype
                                 if ltype == LabelType.JUMP:
                                     jumps.add(val)
@@ -242,7 +244,7 @@ class CodeAnalyzer:
 
     def give_auto_labels(self):
         for address, jump in self.labels.items():
-            if not address in self.addresses['LABEL']:
+            if address not in self.addresses['LABEL']:
                 if address in self.forwards:
                     fwd = self.forwards[address]
                     if fwd in self.addresses['LABEL']:
