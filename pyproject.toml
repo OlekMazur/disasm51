@@ -1,0 +1,27 @@
+[project]
+name = "disasm51"
+version = "1.0.1"
+requires-python = ">= 3.6"
+authors = [{name = "Aleksander Mazur"}]
+description = "Disassembler for 8051/8052"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+keywords = ["8051", "disassembler"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Console",
+  "Programming Language :: Python :: 3",
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Disassemblers",
+]
+
+[project.urls]
+github = "https://github.com/OlekMazur/disasm51"
+
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+disasm51 = "disasm51.main:main"

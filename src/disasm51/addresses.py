@@ -18,7 +18,7 @@
 
 import sys
 import re
-import utils
+from . import utils
 
 
 class Addresses:

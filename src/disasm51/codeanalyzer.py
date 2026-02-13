@@ -2,7 +2,7 @@
 #
 # Code analyzer
 #
-# Copyright (c) 2022 Aleksander Mazur
+# Copyright (c) 2022, 2026 Aleksander Mazur
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@
 
 import sys
 import enum
-import utils
-from instructions import ArgType, Instructions
-from addresses import Addresses
+from . import utils
+from .instructions import ArgType, Instructions
+from .addresses import Addresses
 
 
 class LabelType(enum.Enum):

@@ -17,7 +17,7 @@
 # limitations under the License.
 
 import enum
-import utils
+from . import utils
 
 
 class ArgType(enum.Enum):

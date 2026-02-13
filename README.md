@@ -8,6 +8,13 @@ assembly code out of a binary ROM dump. Generated assembly code
 can be assembled back to identical binary file with an assembler
 like [asem-51].
 
+Installation
+------------
+
+```
+pip install .
+```
+
 Usage
 -----
 
@@ -18,7 +25,7 @@ If you are unsure, you can start from some generic file like *8052.mcu*.
 
 Now let's try
 ```
-disasm51.py --force --include 89c2051.mcu program.bin > program.asm
+disasm51 --force --include 89c2051.mcu program.bin > program.asm
 ```
 This will disassemble everything (including blocks of data) as code.
 
@@ -30,7 +37,7 @@ Try to figure out what interrupt handlers are used by checking which
 interrupts are enabled (look for operations on IE SFR or individual
 interrupt flags). Then add entrypoints to the command line:
 ```
-disasm51.py --include 89c2051.mcu --entry RESET --entry TIMER0 --entry EXTI0 --entry EXTI1 --entry SINT program.bin > program.asm
+disasm51 --include 89c2051.mcu --entry RESET --entry TIMER0 --entry EXTI0 --entry EXTI1 --entry SINT program.bin > program.asm
 ```
 In simpler programs this might be enough, but usually there is still
 some code reachable only by indirect calls. Check the assembly output
@@ -62,7 +69,7 @@ Such data is misdetected as code by default, since calls are supposed to
 return. However, the called procedure may take off return address from
 the stack (usually into DPH, DPL) and use it to establish the target
 of a following indirect jump.
-In such case you need to tell disasm51.py that there is in fact no
+In such case you need to tell disasm51 that there is in fact no
 return from such call. If you see something like
 ```asm
 	lcall jump_069E
@@ -118,7 +125,7 @@ multiplex_disabled	BIT	16
 ;timer0_cont		LABEL	0024h
 ;timer0_skip_multiplex	LABEL	0033h
 ```
-disasm51.py will produce:
+disasm51 will produce:
 ```asm
 	...
 	addc A, #0F1h	; 241  -15 'ñ'
@@ -144,7 +151,7 @@ timer0_skip_multiplex:
 
 Note
 ----
-Copyright © 2022 Aleksander Mazur
+Copyright © 2022, 2026 Aleksander Mazur
 
 [asem-51]: http://plit.de/asem-51
 [mcufiles]: http://plit.de/asem-51/mcufiles.zip
