@@ -69,7 +69,7 @@ class InstrArgsAnalyzer:
 
 class CodeAnalyzer:
     def __init__(self, instructions: Instructions, rom: bytes, addresses: Addresses, offset: int,
-                 all_is_code: bool, no_return_from: list[int], indirect: list[int]):
+                 all_is_code: bool, no_return_from: list[int], indirect: set[int]):
         self.instructions = instructions
         self.rom = rom
         self.addresses = addresses
@@ -84,13 +84,13 @@ class CodeAnalyzer:
         # forwarding labels (= just jump to other location)
         self.forwards: dict[int, int] = {}		# key=from, value=to
         # to avoid repeating SFR warnings
-        self.SFR_warnings = set()
-        self.no_return_from: dict[int, True] = {}
+        self.SFR_warnings: set[int] = set()
+        self.no_return_from: set[int] = set()
         if no_return_from:
             for address in no_return_from:
-                self.no_return_from[address] = True
+                self.no_return_from.add(address)
 
-    def __disassemble_instruction(self, pc) -> tuple[str, int] | None:
+    def __disassemble_instruction(self, pc: int) -> tuple[str, int] | None:
         if pc >= len(self.rom):
             return None
 
@@ -103,20 +103,20 @@ class CodeAnalyzer:
                     self.rom, pc, pc + instr.length, self.offset)
                 args = []
                 hints = ''
-                for arg in instr.args:
-                    arg = analyzer.next_arg(arg)
-                    if not arg:
+                for iarg in instr.args:
+                    analyzed = analyzer.next_arg(iarg)
+                    if not analyzed:
                         return None
-                    (arg, val, hint) = arg
+                    (arg, val, hint) = analyzed
                     hints = hints + hint
 
                     if arg == ArgType.BIT and val not in self.addresses[arg.value]:
                         # extract bit number and reduce BIT to DATA
                         suffix = '.%d' % (val & 7)
                         if val >= 0x80:
-                            val = val & 0xF8		# SFR
+                            val = val & 0xF8		    # SFR
                         else:
-                            val = 0x20 | (val >> 3)  # RAM
+                            val = 0x20 | (val >> 3)     # RAM
                         arg = ArgType.DATA
                     else:
                         suffix = ''
@@ -129,13 +129,13 @@ class CodeAnalyzer:
 
                     if arg == ArgType.LABEL and val == pc:
                         # jump to self - overrides even known labels (still more readable)
-                        val = '$'
+                        valstr = '$'
                     elif arg.value in self.addresses and val in self.addresses[arg.value]:
-                        val = self.addresses[arg.value][val]  # known address
+                        valstr = self.addresses[arg.value][val]  # known address
                     else:
-                        val = utils.int2hex(val)
+                        valstr = utils.int2hex(val)
 
-                    args.append(val + suffix)
+                    args.append(valstr + suffix)
 
                 if len(args) != len(instr.args):
                     return None
@@ -150,7 +150,7 @@ class CodeAnalyzer:
         else:
             return None
 
-    def maybe_print_org_label(self, pc, force_org, just_started):
+    def maybe_print_org_label(self, pc: int, force_org: bool, just_started: bool) -> bool:
         org = False
         if pc in self.addresses['CODE']:
             print('\norg\t%s' % self.addresses['CODE'][pc])
@@ -164,7 +164,7 @@ class CodeAnalyzer:
             print('%s:' % self.addresses['LABEL'][pc])
         return org
 
-    def dump_binary_block(self, start, end, force_org):
+    def dump_binary_block(self, start: int, end: int, force_org: bool) -> int:
         pc = start
         while pc < end:
             if self.rom[pc] != 0xff:
@@ -186,14 +186,14 @@ class CodeAnalyzer:
             print(result)
         return pc
 
-    def disassemble_code_block(self, start, end, force_org):
+    def disassemble_code_block(self, start: int, end: int, force_org: bool) -> int:
         pc = start
         while pc < end:
             if self.maybe_print_org_label(pc, force_org, pc == start):
                 force_org = False
-            result = self.__disassemble_instruction(pc)
-            if result:
-                (result, length) = result
+            disasm = self.__disassemble_instruction(pc)
+            if disasm:
+                (result, length) = disasm
             else:
                 # cannot disassemble -> dump binary byte
                 result = utils.binary_byte(self.rom[pc], pc)
@@ -202,8 +202,8 @@ class CodeAnalyzer:
             pc += length
         return pc
 
-    def analyze_jumps(self, start, entry_queue, force=False):
-        jumps = set()
+    def analyze_jumps(self, start: int, entry_queue: list[int], force: bool = False) -> int:
+        jumps: set[int] = set()
         pc = start
         while pc < len(self.rom):
             code = self.rom[pc]
@@ -213,11 +213,11 @@ class CodeAnalyzer:
                 if instr.args:
                     analyzer = InstrArgsAnalyzer(
                         self.rom, pc, pc + instr.length, self.offset)
-                    for arg in instr.args:
-                        arg = analyzer.next_arg(arg)
-                        if not arg:
+                    for iarg in instr.args:
+                        analyzed = analyzer.next_arg(iarg)
+                        if not analyzed:
                             break
-                        (arg, val, hint) = arg
+                        (arg, val, hint) = analyzed
 
                         if arg == ArgType.LABEL and val != pc:
                             if instr.no_jump:
@@ -242,7 +242,7 @@ class CodeAnalyzer:
         entry_queue += jumps
         return pc
 
-    def give_auto_labels(self):
+    def give_auto_labels(self) -> None:
         for address, jump in self.labels.items():
             if address not in self.addresses['LABEL']:
                 if address in self.forwards:

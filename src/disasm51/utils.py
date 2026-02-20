@@ -16,14 +16,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-def int2hex(x):
+def int2hex(x: int) -> str:
     s = '%02Xh' % x
     if not s[0].isdigit():
         s = '0' + s
     return s
 
 
-def binary_hint(byte):
+def binary_hint(byte: int) -> str:
     s = '%3d' % byte
     if byte >= 0x80:
         s = s + (' %4d' % (byte - 0x100))
@@ -33,13 +33,13 @@ def binary_hint(byte):
     return s
 
 
-def binary_byte(byte, pc):
+def binary_byte(byte: int, pc: int) -> str:
     return '\tdb %s\t; [%04Xh] %s' % (int2hex(byte), pc, binary_hint(byte))
 
 
-def binary_word(word, pc):
+def binary_word(word: int, pc: int) -> str:
     return '\tdw %s\t; [%04Xh]' % (int2hex(word), pc)
 
 
-def auto_label(prefix, address):
+def auto_label(prefix: str, address: int) -> str:
     return '%s_%04X' % (prefix, address)

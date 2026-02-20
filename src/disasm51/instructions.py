@@ -17,6 +17,7 @@
 # limitations under the License.
 
 import enum
+from typing import Iterator
 from . import utils
 
 
@@ -30,7 +31,7 @@ class ArgType(enum.Enum):
 
 
 class Instruction:
-    def __init__(self, code: int, length: int, mnemonic: str, args: list[ArgType] = None,
+    def __init__(self, code: int, length: int, mnemonic: str, args: list[ArgType] | None = None,
                  jump_out: bool = False, no_jump: bool = False):
         self.code = code
         self.length = length
@@ -39,7 +40,7 @@ class Instruction:
         self.jump_out = jump_out
         self.no_jump = no_jump
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.args:
             mnemonic = self.mnemonic.format(*self.args)
         else:
@@ -48,7 +49,7 @@ class Instruction:
 
 
 class Instructions:
-    def __init__(self):
+    def __init__(self) -> None:
         self.instructions: dict[int, Instruction] = {}
 
         for (msb, mnemonic) in {
@@ -206,19 +207,19 @@ class Instructions:
             assert code in self.instructions, 'missing instruction for opcode %s' % utils.int2hex(
                 code)
 
-    def __add(self, instruction):
+    def __add(self, instruction: Instruction) -> None:
         assert instruction.code not in self.instructions, 'duplicate opcode %s' % str(
             instruction)
         self.instructions[instruction.code] = instruction
 
-    def __str__(self):
+    def __str__(self) -> str:
         result = ''
         for code in range(0, 0x100):
             result = result + '\n' + str(self.instructions[code])
         return result[1:]
 
-    def __getitem__(self, code):
+    def __getitem__(self, code: int) -> Instruction:
         return self.instructions[code]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[int]:
         return iter(self.instructions)

@@ -28,26 +28,27 @@ MAX_ROM_SIZE = 0x10000
 # Parse arguments
 
 
-def auto_int(x):
+def auto_int(x: str) -> int:
     return int(x, 0)
 
 
-def convert_array(x):
+def convert_array(x: str) -> list[int] | None:
     result = list(map(auto_int, x.split(':')))
     if len(result) == 2:
         result.append(2)
     if (len(result) == 3) and (result[1] > result[0]) and (result[2] > 0):
         return result
+    return None
 
 
-def auto_array(x):
+def auto_array(x: str) -> list[int]:
     result = convert_array(x)
     if result:
         return result
     raise ValueError()
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument('--version', action='version', version='%(prog)s 1.0.1')
     parser.add_argument('--include', action='append', help='include .mcu file')
@@ -87,8 +88,8 @@ def main():
             with open(include, 'r') as f:
                 known_eps.update(_addresses.include(f))
     # Load ROM binary file
-    with open(args.bin, 'r') as f:
-        rom = f.buffer.read(MAX_ROM_SIZE)
+    with open(args.bin, 'rb') as f:
+        rom = f.read(MAX_ROM_SIZE)
     # Collect entry points
     entrypoints = []
     for ep in args.entry:
@@ -111,12 +112,12 @@ def main():
         else:
             print('warning: entry point %s beyond %s' %
                   (utils.int2hex(ep), args.bin), file=sys.stderr)
-    indirect = {}
+    indirect: set[int] = set()
     if args.indirect:
         for [address, end, increment] in args.indirect:
             while address < end:
                 if address + 1 < len(rom):
-                    indirect[address] = True
+                    indirect.add(address)
                     entrypoints.append((rom[address] << 8) | rom[address + 1])
                     address += increment
     # Start code segment

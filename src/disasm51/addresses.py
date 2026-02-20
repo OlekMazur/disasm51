@@ -18,6 +18,7 @@
 
 import sys
 import re
+from typing import TextIO, Iterator
 from . import utils
 
 
@@ -25,8 +26,8 @@ class Addresses:
     pat = re.compile(
         r';?(?P<label>[a-zA-Z0-9_]+)\s+(?P<scope>[A-Z]+)\s+(?P<addr>[0-9A-F]+)(?P<hex>h|H)?')
 
-    def __init__(self):
-        self.addr = {}
+    def __init__(self) -> None:
+        self.addr: dict[str, dict[int, str]] = {}
         # offsets in code segment used for emitting ORG statements
         self.addr['CODE'] = {}
         self.addr['DATA'] = {}  # symbols in data segment (direct addressing)
@@ -34,13 +35,13 @@ class Addresses:
         # symbols in code segment used for emitting labels
         self.addr['LABEL'] = {}
 
-    def __str__(self):
+    def __str__(self) -> str:
         s = ''
         for k, v in self.addr.items():
             s += ('\n%s: ' % k) + str(v)
         return s[1:]
 
-    def include(self, f):
+    def include(self, f: TextIO) -> dict[str, int]:
         starts = {}
         for line in f.readlines():
             line = line[:-1]
@@ -66,8 +67,8 @@ class Addresses:
                       line, file=sys.stderr)
         return starts
 
-    def __getitem__(self, scope):
+    def __getitem__(self, scope: str) -> dict[int, str]:
         return self.addr[scope]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[str]:
         return iter(self.addr)
