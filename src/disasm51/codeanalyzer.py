@@ -165,26 +165,26 @@ class CodeAnalyzer:
         return org
 
     def dump_binary_block(self, start: int, end: int, force_org: bool) -> int:
-        pc = start
+        pc = done_to = start
         while pc < end:
-            if self.rom[pc] != 0xff:
-                break
-            pc += 1
-        if pc == end:
-            return start  # don't dump blocks of 0FFh's
-        pc = start
-        while pc < end:
-            if self.maybe_print_org_label(pc, force_org, pc == start):
-                force_org = False
             if pc + 1 < end and pc in self.labels and self.labels[pc] == LabelType.ADDR:
                 result = utils.binary_word(
                     (self.rom[pc] << 8) | self.rom[pc + 1], pc)
-                pc += 2
+                length = 2
             else:
-                result = utils.binary_byte(self.rom[pc], pc)
-                pc += 1
-            print(result)
-        return pc
+                if self.rom[pc] != 0xff:
+                    result = utils.binary_byte(self.rom[pc], pc)
+                else:
+                    result = None
+                length = 1
+            if result or pc in self.labels:
+                if self.maybe_print_org_label(pc, force_org or (pc != done_to), pc == start):
+                    force_org = False
+            if result:
+                print(result)
+                done_to = pc + length
+            pc += length
+        return done_to
 
     def disassemble_code_block(self, start: int, end: int, force_org: bool) -> int:
         pc = start
